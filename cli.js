@@ -6,37 +6,64 @@ const path = require('path')
 const chalk = require('chalk')
 
 async function run() {
-  let projectName = process.argv[2]
+  console.log(
+    chalk.cyan('\nWelcome to the Custom Themes Expo Starter Template!')
+  )
 
-  if (!projectName) {
-    console.log(
-      chalk.cyan('\nWelcome to the Custom Themes Expo Starter Template!')
-    )
-    const response = await prompts({
-      type: 'text',
+  const questions = [
+    {
+      type: process.argv[2] ? null : 'text',
       name: 'projectName',
       message: 'What is the name of your project?',
       initial: 'my-themed-app',
       validate: (name) =>
         name.length > 0 ? true : 'Project name cannot be empty.',
-    })
-    projectName = response.projectName
-  }
+    },
+    {
+      type: 'select',
+      name: 'styleType',
+      message: 'Choose your styling library:',
+      choices: [
+        {
+          title: 'Standard (StyleSheet API)',
+          value: 'standard',
+          description: 'Default React Native styling',
+        },
+        {
+          title: 'NativeWind (Tailwind CSS)',
+          value: 'nativewind',
+          description: 'Tailwind CSS utility classes',
+        },
+      ],
+      initial: 0,
+    },
+  ]
 
-  if (!projectName) {
-    console.log(chalk.red('Project setup cancelled.'))
+  const response = await prompts(questions)
+
+  const projectName = process.argv[2] || response.projectName
+  const styleType = response.styleType
+
+  if (!projectName || !styleType) {
+    console.log(chalk.red('\nProject setup cancelled.'))
     return
   }
 
   const projectDir = path.resolve(projectName)
-  const templateRepoUrl =
-    'https://github.com/KodeckJames/Expo-Themes-Starter-Kit'
+
+  const templates = {
+    standard: 'https://github.com/KodeckJames/Expo-Themes-Starter-Kit',
+    nativewind:
+      'https://github.com/KodeckJames/Expo-Nativewind-Themes-Starter-Kit',
+  }
+
+  const templateRepoUrl = templates[styleType]
 
   console.log(
     chalk.blue(
-      `\nSetting up ${chalk.bold(
-        projectName
-      )} with your custom theme template...`
+      `\nSetting up ${chalk.bold(projectName)} using ${chalk.bold(
+        styleType
+      )}...`
     )
   )
 
@@ -53,12 +80,12 @@ async function run() {
 
   try {
     console.log(
-      chalk.blue('\nRunning core dependency updates to latest SDK...')
+      chalk.blue(
+        '\nRunning core dependency updates to latest Expo SDK version...'
+      )
     )
-
     execSync(`npm install expo@latest`, { stdio: 'inherit' })
     execSync(`npx expo install --fix`, { stdio: 'inherit' })
-
     console.log(chalk.green('✅ Dependencies updated and fixed successfully!'))
   } catch (error) {
     console.error(
@@ -67,7 +94,7 @@ async function run() {
   }
 
   try {
-    console.log(chalk.blue('\nInstalling final dependencies...'))
+    console.log(chalk.blue('\nInstalling project dependencies...'))
     execSync('npm install', { stdio: 'inherit' })
   } catch (error) {
     console.error(chalk.red(`\nFailed to run final install: ${error.message}`))
@@ -78,11 +105,10 @@ async function run() {
     console.log(
       chalk.magenta('\nFinalizing project setup with initial Git commit...')
     )
-
     execSync('git add .', { stdio: 'pipe' })
-
-    execSync('git commit -m "Initial commit"', { stdio: 'pipe' })
-
+    execSync('git commit -m "Initial commit"', {
+      stdio: 'pipe',
+    })
     console.log(chalk.green('✅ Initial commit created!'))
   } catch (error) {
     console.error(
@@ -97,7 +123,7 @@ async function run() {
 
   console.log(
     chalk.green(
-      `\n\n🎉 Success! Your custom themed Expo project is ready in ${projectName}!`
+      `\n\n🎉 Success! Your ${styleType} themed Expo project is ready in ${projectName}!`
     )
   )
   console.log(chalk.cyan(`\nNext steps:`))

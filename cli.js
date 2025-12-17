@@ -81,7 +81,7 @@ async function run() {
   try {
     console.log(
       chalk.blue(
-        '\nRunning core dependency updates to latest Expo SDK version...'
+        '\nRunning core dependency updates to latest stable Expo SDK version...'
       )
     )
     execSync(`npm install expo@^54.0.0`, { stdio: 'inherit' })
